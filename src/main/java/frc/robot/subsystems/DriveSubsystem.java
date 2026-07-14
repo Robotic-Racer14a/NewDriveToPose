@@ -3,7 +3,9 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -88,5 +90,41 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
+
+    
+    //////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////// Info Getters //////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////
+    
+    public Pose2d getCurrentPose() {
+        return this.getState().Pose;
+    }
+
+    public double getCurrentVelocity() {
+        return Math.sqrt(Math.pow(this.getState().Speeds.vxMetersPerSecond, 2) + Math.pow(this.getState().Speeds.vyMetersPerSecond, 2));
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////// Field Centric //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric();
+    double maxJoystickVelo = 3, maxJoystickRotVelo = Math.PI;
+
+    public void setFieldCentricState(double leftX, double leftY, double rightX) {
+        this.setControl(
+            fieldCentricRequest
+                .withVelocityX(leftX * maxJoystickVelo)
+                .withVelocityY(leftY * maxJoystickVelo)
+                .withRotationalRate(rightX * maxJoystickRotVelo)
+        );
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////// Drive To Pose //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    SwerveRequest.FieldCentricFacingAngle driveToPoseRequest = new SwerveRequest.FieldCentricFacingAngle();
+    double maxPositionalVelo = 3, maxPositionalRotVelo = Math.PI;
 
 }
