@@ -10,6 +10,8 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -36,6 +38,11 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
+
+    StructPublisher<Pose2d> currentPosePublisher = NetworkTableInstance.getDefault()
+        .getStructTopic("Robot Pose", Pose2d.struct).publish();
+    StructPublisher<Pose2d> targetPosePublisher = NetworkTableInstance.getDefault()
+        .getStructTopic("Target Pose", Pose2d.struct).publish();
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -77,6 +84,8 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        currentPosePublisher.set(getCurrentPose());
     }
 
     private void startSimThread() {
@@ -149,9 +158,9 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     SwerveRequest.FieldCentricFacingAngle driveToPoseRequest = new SwerveRequest.FieldCentricFacingAngle()
         .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
     double maxPositionalSpeed = 3, maxPositionalRotSpeed = Math.PI;
-    double posKP = 0, posKI = 0, posKD = 0;
-    ProfiledPIDController xPosController = new ProfiledPIDController(posKP, posKI, posKD, new TrapezoidProfile.Constraints(maxPositionalSpeed, 2));
-    ProfiledPIDController yPosController = new ProfiledPIDController(posKP, posKI, posKD, new TrapezoidProfile.Constraints(maxPositionalSpeed, 2));
+    double posKP = 20, posKI = 0, posKD = 0.01;
+    ProfiledPIDController xPosController = new ProfiledPIDController(posKP, posKI, posKD, new TrapezoidProfile.Constraints(maxPositionalSpeed, 3));
+    ProfiledPIDController yPosController = new ProfiledPIDController(posKP, posKI, posKD, new TrapezoidProfile.Constraints(maxPositionalSpeed, 3));
 
     Pose2d positionalTargetPose = Pose2d.kZero;
 
@@ -160,9 +169,12 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public void setDriveToPoseState() {
+        currentPosePublisher.set(getCurrentPose());
+        targetPosePublisher.set(positionalTargetPose);
+
         xPosController.setGoal(positionalTargetPose.getX());
         yPosController.setGoal(positionalTargetPose.getY());
-        
+
         double xSpeed = xPosController.calculate(getCurrentPose().getX());
         double ySpeed = yPosController.calculate(getCurrentPose().getY());
 
