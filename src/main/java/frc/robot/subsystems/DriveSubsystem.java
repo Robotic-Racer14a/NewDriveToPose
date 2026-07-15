@@ -6,6 +6,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,7 +18,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-
+import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -184,4 +185,51 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
         );
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////// Limelight Methods ////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    public void updatePoseWithLimelight(String limelightName) {
+        boolean updateVision = true;
+        
+        LimelightHelpers.SetRobotOrientation(limelightName, getCurrentPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
+
+        Rotation2d currentOrientation = null;
+
+        if(mt1 != null) {
+          
+            if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1) {
+                if(mt1.rawFiducials[0].ambiguity > .7)
+                {
+                    updateVision = false;
+                }
+                if(mt1.rawFiducials[0].distToCamera > 3)
+                {
+                    updateVision = false;
+                }
+            }
+            if(mt1.tagCount == 0) {
+                updateVision = false;
+            }
+            if(updateVision) {
+                currentOrientation = mt1.pose.getRotation();
+            }
+        }
+
+        if (currentOrientation == null) {
+            currentOrientation = getCurrentPose().getRotation();
+        }
+
+        
+        
+        if(mt2 != null && mt2.tagCount != 0 &&Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720) { // if our angular velocity is greater than 720 degrees per second, ignore vision updates
+          setVisionMeasurementStdDevs(VecBuilder.fill(0.15,0.15,Math.toRadians(10))); 
+                addVisionMeasurement(
+                    new Pose2d(mt2.pose.getTranslation(), currentOrientation),
+                    Utils.fpgaToCurrentTime(mt2.timestampSeconds));
+        }
+
+    }
 }
