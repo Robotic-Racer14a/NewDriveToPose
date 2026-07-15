@@ -4,15 +4,18 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class Robot extends TimedRobot {
-    private Command m_autonomousCommand;
     DriveSubsystem drivetrain = TunerConstants.createDrivetrain();
+    CommandXboxController driveController = new CommandXboxController(0);
+    CommandXboxController operatorController = new CommandXboxController(1);
 
 
     public Robot() {
@@ -34,29 +37,23 @@ public class Robot extends TimedRobot {
     public void disabledExit() {}
 
     @Override
-    public void autonomousInit() {
-
-        if (m_autonomousCommand != null) {
-            CommandScheduler.getInstance().schedule(m_autonomousCommand);
-        }
-    }
+    public void autonomousInit() {}
 
     @Override
-    public void autonomousPeriodic() {}
+    public void autonomousPeriodic() {
+        drivetrain.setTargetPose(new Pose2d(0, 0, Rotation2d.k180deg));
+        drivetrain.setDriveToPoseState();
+    }
 
     @Override
     public void autonomousExit() {}
 
     @Override
-    public void teleopInit() {
-        if (m_autonomousCommand != null) {
-            CommandScheduler.getInstance().cancel(m_autonomousCommand);
-        }
-    }
+    public void teleopInit() {}
 
     @Override
     public void teleopPeriodic() {
-        drivetrain.setDriveToPoseState();
+        drivetrain.setFieldCentricState(driveController.getLeftX(), driveController.getLeftY(), driveController.getRightX());
     }
 
     @Override

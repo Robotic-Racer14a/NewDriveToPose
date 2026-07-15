@@ -86,6 +86,8 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
 
+        updatePoseWithLimelight("limelight");
+
         currentPosePublisher.set(getCurrentPose());
     }
 
@@ -129,8 +131,8 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     public void setFieldCentricState(double leftX, double leftY, double rightX) {
         this.setControl(
             fieldCentricRequest
-                .withVelocityX(leftX * maxJoystickSpeed)
-                .withVelocityY(leftY * maxJoystickSpeed)
+                .withVelocityX(leftY * maxJoystickSpeed)
+                .withVelocityY(leftX * maxJoystickSpeed)
                 .withRotationalRate(rightX * maxJoystickRotSpeed)
         );
     }
@@ -157,7 +159,10 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     ///////////////////////////////////////////////////////////////////////////////////
 
     SwerveRequest.FieldCentricFacingAngle driveToPoseRequest = new SwerveRequest.FieldCentricFacingAngle()
+        .withMaxAbsRotationalRate(Math.PI * 2)
+        .withHeadingPID(7, 0, 0)
         .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
+
     double maxPositionalSpeed = 3, maxPositionalRotSpeed = Math.PI;
     double posKP = 20, posKI = 0, posKD = 0.01;
     ProfiledPIDController xPosController = new ProfiledPIDController(posKP, posKI, posKD, new TrapezoidProfile.Constraints(maxPositionalSpeed, 3));
@@ -182,6 +187,7 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
         this.setControl(driveToPoseRequest
             .withVelocityX(xSpeed)
             .withVelocityY(ySpeed)
+            .withTargetDirection(positionalTargetPose.getRotation())
         );
     }
 
