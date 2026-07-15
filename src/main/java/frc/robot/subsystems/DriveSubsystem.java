@@ -104,20 +104,39 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
         return Math.sqrt(Math.pow(this.getState().Speeds.vxMetersPerSecond, 2) + Math.pow(this.getState().Speeds.vyMetersPerSecond, 2));
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////// Field Centric //////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////// Driving Controls ////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////
 
     SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric();
-    double maxJoystickVelo = 3, maxJoystickRotVelo = Math.PI;
+    SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric();
+    SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
+    double maxJoystickSpeed = 3, maxJoystickRotSpeed = Math.PI;
 
     public void setFieldCentricState(double leftX, double leftY, double rightX) {
         this.setControl(
             fieldCentricRequest
-                .withVelocityX(leftX * maxJoystickVelo)
-                .withVelocityY(leftY * maxJoystickVelo)
-                .withRotationalRate(rightX * maxJoystickRotVelo)
+                .withVelocityX(leftX * maxJoystickSpeed)
+                .withVelocityY(leftY * maxJoystickSpeed)
+                .withRotationalRate(rightX * maxJoystickRotSpeed)
         );
+    }
+
+    public void setRobotCentricState(double leftX, double leftY, double rightX) {
+        this.setControl(
+            robotCentricRequest
+                .withVelocityX(leftX * maxJoystickSpeed)
+                .withVelocityY(leftY * maxJoystickSpeed)
+                .withRotationalRate(rightX * maxJoystickRotSpeed)
+        );
+    }
+
+    public void setBrakeState() {
+        this.setControl(brakeRequest);
+    }
+
+    public void setMaxJoystickSpeed(double maxSpeed) {
+        maxJoystickSpeed = maxSpeed;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////
@@ -125,6 +144,6 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     ///////////////////////////////////////////////////////////////////////////////////
 
     SwerveRequest.FieldCentricFacingAngle driveToPoseRequest = new SwerveRequest.FieldCentricFacingAngle();
-    double maxPositionalVelo = 3, maxPositionalRotVelo = Math.PI;
+    double maxPositionalSpeed = 3, maxPositionalRotSpeed = Math.PI;
 
 }
