@@ -4,9 +4,12 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -100,7 +103,7 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
         return this.getState().Pose;
     }
 
-    public double getCurrentVelocity() {
+    public double getCurrentSpeed() {
         return Math.sqrt(Math.pow(this.getState().Speeds.vxMetersPerSecond, 2) + Math.pow(this.getState().Speeds.vyMetersPerSecond, 2));
     }
 
@@ -143,7 +146,30 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     ////////////////////////////////// Drive To Pose //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
 
-    SwerveRequest.FieldCentricFacingAngle driveToPoseRequest = new SwerveRequest.FieldCentricFacingAngle();
+    SwerveRequest.FieldCentricFacingAngle driveToPoseRequest = new SwerveRequest.FieldCentricFacingAngle()
+        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
     double maxPositionalSpeed = 3, maxPositionalRotSpeed = Math.PI;
+    double posKP = 0, posKI = 0, posKD = 0;
+    ProfiledPIDController xPosController = new ProfiledPIDController(posKP, posKI, posKD, new TrapezoidProfile.Constraints(maxPositionalSpeed, 2));
+    ProfiledPIDController yPosController = new ProfiledPIDController(posKP, posKI, posKD, new TrapezoidProfile.Constraints(maxPositionalSpeed, 2));
+
+    Pose2d positionalTargetPose = Pose2d.kZero;
+
+    public void setTargetPose(Pose2d target) {
+        positionalTargetPose = target;
+    }
+
+    public void setDriveToPoseState() {
+        xPosController.setGoal(positionalTargetPose.getX());
+        yPosController.setGoal(positionalTargetPose.getY());
+        
+        double xSpeed = xPosController.calculate(getCurrentPose().getX());
+        double ySpeed = yPosController.calculate(getCurrentPose().getY());
+
+        this.setControl(driveToPoseRequest
+            .withVelocityX(xSpeed)
+            .withVelocityY(ySpeed)
+        );
+    }
 
 }
