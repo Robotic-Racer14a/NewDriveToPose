@@ -11,9 +11,11 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.superstructure.Superstructure;
 
 public class Robot extends TimedRobot {
     DriveSubsystem drivetrain = TunerConstants.createDrivetrain();
+    Superstructure superstructure = new Superstructure(drivetrain);
     CommandXboxController driveController = new CommandXboxController(0);
     CommandXboxController operatorController = new CommandXboxController(1);
 
