@@ -27,3 +27,6 @@ This project is the starting point for Team 1322 coding projects
 
   * Max Velocity and Acceleration components need to be initialized to correct values before this step
 
+## Important Info
+This structure is built to eliminate the need of Commands and instead uses a state based superstructure.  
+Keybinds are recommended to be simple if statements inside of tele-op periodic to be moved into an OpMode in 2027
