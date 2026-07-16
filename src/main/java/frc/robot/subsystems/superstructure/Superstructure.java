@@ -5,6 +5,7 @@ import frc.robot.subsystems.DriveSubsystem;
 
 public class Superstructure extends SubsystemBase {
 
+    //All states of the robot
     public enum SystemState {
         IDLE,
         INTAKE,
@@ -14,6 +15,7 @@ public class Superstructure extends SubsystemBase {
     SystemState targetState = SystemState.IDLE;
     SystemState currentState = SystemState.IDLE;
 
+    //Current instance of drivetrain
     DriveSubsystem drivetrain;
     
     public Superstructure(DriveSubsystem drivetrain) {

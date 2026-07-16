@@ -40,6 +40,7 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
 
+    //Pose Publishers so the robot pose appears in AdvantageScope
     StructPublisher<Pose2d> currentPosePublisher = NetworkTableInstance.getDefault()
         .getStructTopic("Robot Pose", Pose2d.struct).publish();
     StructPublisher<Pose2d> targetPosePublisher = NetworkTableInstance.getDefault()
@@ -86,8 +87,10 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
 
+        //Update robot position with the limelight
         updatePoseWithLimelight("limelight");
 
+        //Updates the robot pose in advantagescope
         currentPosePublisher.set(getCurrentPose());
     }
 
@@ -147,6 +150,7 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public void setBrakeState() {
+        //Turns the swerve into an X formation
         this.setControl(brakeRequest);
     }
 
@@ -161,7 +165,7 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     SwerveRequest.FieldCentricFacingAngle driveToPoseRequest = new SwerveRequest.FieldCentricFacingAngle()
         .withMaxAbsRotationalRate(Math.PI * 2)
         .withHeadingPID(7, 0, 0)
-        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
+        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance); //Makes the field centric of drive to pose the same for red and blue
 
     double maxPositionalSpeed = 3, maxPositionalRotSpeed = Math.PI;
     double posKP = 20, posKI = 0, posKD = 0.01;
@@ -175,15 +179,20 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public void setDriveToPoseState() {
+        //Updates poses in AdvantageScope
+        //Current Pose here for simulation, could be removed if issue fixed
         currentPosePublisher.set(getCurrentPose());
         targetPosePublisher.set(positionalTargetPose);
 
+        //Set the target of the robot to the target pose
         xPosController.setGoal(positionalTargetPose.getX());
         yPosController.setGoal(positionalTargetPose.getY());
 
+        //Determine velocity of drivetrain
         double xSpeed = xPosController.calculate(getCurrentPose().getX());
         double ySpeed = yPosController.calculate(getCurrentPose().getY());
 
+        //Apply speeds to robot
         this.setControl(driveToPoseRequest
             .withVelocityX(xSpeed)
             .withVelocityY(ySpeed)
