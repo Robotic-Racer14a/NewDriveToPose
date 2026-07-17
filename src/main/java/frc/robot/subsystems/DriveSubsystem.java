@@ -174,6 +174,10 @@ public class DriveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
 
     Pose2d positionalTargetPose = Pose2d.kZero;
 
+    public boolean isDriveToPoseAtPosition(double tolerance) {
+        return Math.sqrt(Math.pow(positionalTargetPose.getX() - getCurrentPose().getX(), 2) + Math.pow(positionalTargetPose.getY() - getCurrentPose().getY(), 2)) < tolerance;
+    }
+
     public void setTargetPose(Pose2d target) {
         positionalTargetPose = target;
     }

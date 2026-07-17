@@ -38,13 +38,32 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledExit() {}
 
+    int step = 0;
     @Override
-    public void autonomousInit() {}
+    public void autonomousInit() {
+        step = 0;
+    }
 
     @Override
     public void autonomousPeriodic() {
-        drivetrain.setTargetPose(new Pose2d(0, 0, Rotation2d.k180deg));
         drivetrain.setDriveToPoseState();
+
+        if (step == 0) {
+            drivetrain.setTargetPose(new Pose2d(3, 0, Rotation2d.k180deg));
+            if (drivetrain.isDriveToPoseAtPosition(0.75)) {
+                step = 10;
+            }
+        } else if (step == 10) {
+            drivetrain.setTargetPose(new Pose2d(8, 5, Rotation2d.k180deg));
+            if (drivetrain.isDriveToPoseAtPosition(0.75)) {
+                step = 20;
+            }
+        } else if (step == 20) {
+            drivetrain.setTargetPose(new Pose2d(0, 2, Rotation2d.k180deg));
+            if (drivetrain.isDriveToPoseAtPosition(0.75)) {
+                step = 0;
+            }
+        } 
     }
 
     @Override
