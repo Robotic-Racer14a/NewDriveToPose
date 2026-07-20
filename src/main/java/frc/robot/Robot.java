@@ -44,26 +44,40 @@ public class Robot extends TimedRobot {
         step = 0;
     }
 
+    AutoHelper autoHelper = new AutoHelper(drivetrain);
     @Override
     public void autonomousPeriodic() {
         drivetrain.setDriveToPoseState();
 
         if (step == 0) {
-            drivetrain.setTargetPose(new Pose2d(3, 0, Rotation2d.k180deg));
-            if (drivetrain.isDriveToPoseAtPosition(0.75)) {
+            if (autoHelper.leaveAllianceZoneRightBump()) {
                 step = 10;
             }
         } else if (step == 10) {
-            drivetrain.setTargetPose(new Pose2d(8, 5, Rotation2d.k180deg));
+            drivetrain.setTargetPose(new Pose2d(7, 0.75, Rotation2d.k180deg));
+            if (drivetrain.isDriveToPoseAtPosition(0.75)) {
+                step = 11;
+            }
+        } else if (step == 11) {
+            drivetrain.setTargetPose(new Pose2d(8, 4, Rotation2d.k180deg));
+            if (drivetrain.isDriveToPoseAtPosition(0.75)) {
+                step = 12;
+            }
+        } else if (step == 12) {
+            drivetrain.setTargetPose(new Pose2d(6, 3, Rotation2d.k180deg));
             if (drivetrain.isDriveToPoseAtPosition(0.75)) {
                 step = 20;
             }
         } else if (step == 20) {
-            drivetrain.setTargetPose(new Pose2d(0, 2, Rotation2d.k180deg));
-            if (drivetrain.isDriveToPoseAtPosition(0.75)) {
+            if (autoHelper.returnAllianceZoneRightBump()) {
+                step = 30;
+            }
+        } else if (step == 30) {
+            drivetrain.setTargetPose(new Pose2d(1, 1, Rotation2d.k180deg));
+            if (drivetrain.isDriveToPoseAtPosition(0.1)) {
                 step = 0;
             }
-        } 
+        }
     }
 
     @Override
