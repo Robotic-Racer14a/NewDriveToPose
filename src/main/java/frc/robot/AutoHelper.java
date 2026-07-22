@@ -6,19 +6,21 @@ import frc.robot.subsystems.DriveSubsystem;
 
 public class AutoHelper{
     
+    Robot robot;
     DriveSubsystem drive;
 
-    public AutoHelper(DriveSubsystem drive) {
-        this.drive = drive;
+    public AutoHelper(Robot robot) {
+        this.robot = robot;
+        drive = robot.drivetrain;
     }
 
     int exitRightBumpStep = 0;
     public boolean leaveAllianceZoneRightBump() {
         if (exitRightBumpStep == 0) {
-            drive.setTargetPose(new Pose2d(3, 2.5, Rotation2d.k180deg));
+            drive.setTargetPose(new Pose2d(3, 2.5, Rotation2d.kZero));
             if (drive.isDriveToPoseAtPosition(0.05)) exitRightBumpStep = 10;
         } else if (exitRightBumpStep == 10) {
-            drive.setTargetPose(new Pose2d(6, 2.5, Rotation2d.k180deg));
+            drive.setTargetPose(new Pose2d(5.5, 2.5, Rotation2d.kZero));
             if (drive.isDriveToPoseAtPosition(0.5)) exitRightBumpStep = 20;
         } else {
             exitRightBumpStep = 0;

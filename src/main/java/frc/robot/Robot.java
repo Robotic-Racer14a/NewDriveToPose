@@ -14,8 +14,8 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.superstructure.Superstructure;
 
 public class Robot extends TimedRobot {
-    DriveSubsystem drivetrain = TunerConstants.createDrivetrain();
-    Superstructure superstructure = new Superstructure(drivetrain);
+    public DriveSubsystem drivetrain = TunerConstants.createDrivetrain();
+    public Superstructure superstructure = new Superstructure(drivetrain);
     CommandXboxController driveController = new CommandXboxController(0);
     CommandXboxController operatorController = new CommandXboxController(1);
 
@@ -44,7 +44,7 @@ public class Robot extends TimedRobot {
         step = 0;
     }
 
-    AutoHelper autoHelper = new AutoHelper(drivetrain);
+    AutoHelper autoHelper = new AutoHelper(this);
     @Override
     public void autonomousPeriodic() {
         drivetrain.setDriveToPoseState();
@@ -54,25 +54,25 @@ public class Robot extends TimedRobot {
                 step = 10;
             }
         } else if (step == 10) {
-            drivetrain.setTargetPose(new Pose2d(7, 0.75, Rotation2d.k180deg));
-            if (drivetrain.isDriveToPoseAtPosition(0.75)) {
-                step = 11;
-            }
-        } else if (step == 11) {
-            drivetrain.setTargetPose(new Pose2d(8, 4, Rotation2d.k180deg));
-            if (drivetrain.isDriveToPoseAtPosition(0.75)) {
-                step = 12;
-            }
-        } else if (step == 12) {
-            drivetrain.setTargetPose(new Pose2d(6, 3, Rotation2d.k180deg));
+            drivetrain.setTargetPose(new Pose2d(7, 0.75, Rotation2d.kCCW_90deg));
             if (drivetrain.isDriveToPoseAtPosition(0.75)) {
                 step = 20;
             }
         } else if (step == 20) {
-            if (autoHelper.returnAllianceZoneRightBump()) {
+            drivetrain.setTargetPose(new Pose2d(8, 4, Rotation2d.kCCW_90deg));
+            if (drivetrain.isDriveToPoseAtPosition(0.75)) {
                 step = 30;
             }
         } else if (step == 30) {
+            drivetrain.setTargetPose(new Pose2d(6, 3, Rotation2d.k180deg));
+            if (drivetrain.isDriveToPoseAtPosition(0.75)) {
+                step = 40;
+            }
+        } else if (step == 40) {
+            if (autoHelper.returnAllianceZoneRightBump()) {
+                step = 50;
+            }
+        } else if (step == 50) {
             drivetrain.setTargetPose(new Pose2d(1, 1, Rotation2d.k180deg));
             if (drivetrain.isDriveToPoseAtPosition(0.1)) {
                 step = 0;
